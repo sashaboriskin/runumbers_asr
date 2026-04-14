@@ -1,0 +1,113 @@
+{
+  "train": {
+    "split": "train",
+    "n": 12553,
+    "speakers": [
+      "spk_A",
+      "spk_B",
+      "spk_C",
+      "spk_D",
+      "spk_E",
+      "spk_F"
+    ],
+    "n_speakers": 6,
+    "per_speaker_count": {
+      "spk_A": 1066,
+      "spk_B": 2914,
+      "spk_C": 1063,
+      "spk_D": 913,
+      "spk_E": 5686,
+      "spk_F": 911
+    },
+    "per_gender_count": {
+      "female": 7665,
+      "male": 4888
+    },
+    "ext_count": {
+      "wav": 12553
+    },
+    "sr_count": {
+      "24000": 10424,
+      "22050": 2129
+    },
+    "sr_actual_count": {
+      "24000": 10424,
+      "22050": 2129
+    },
+    "duration_s": {
+      "min": 1.070375,
+      "max": 5.719229024943311,
+      "mean": 3.071296096139669,
+      "p50": 3.0374166666666667,
+      "p95": 4.105442176870748,
+      "p99": 4.505754195011333
+    },
+    "transcription_len_count": {
+      "2": 3,
+      "3": 9,
+      "4": 116,
+      "5": 1128,
+      "6": 11297
+    },
+    "transcription_min": 14,
+    "transcription_max": 999888
+  },
+  "dev": {
+    "split": "dev",
+    "n": 2265,
+    "speakers": [
+      "spk_A",
+      "spk_B",
+      "spk_C",
+      "spk_D",
+      "spk_E",
+      "spk_F",
+      "spk_H",
+      "spk_I",
+      "spk_J",
+      "spk_K"
+    ],
+    "n_speakers": 10,
+    "per_speaker_count": {
+      "spk_A": 100,
+      "spk_B": 100,
+      "spk_C": 100,
+      "spk_D": 100,
+      "spk_E": 100,
+      "spk_F": 100,
+      "spk_H": 633,
+      "spk_I": 497,
+      "spk_J": 344,
+      "spk_K": 191
+    },
+    "per_gender_count": {
+      "male": 1277,
+      "female": 988
+    },
+    "ext_count": {
+      "wav": 1577,
+      "mp3": 688
+    },
+    "sr_count": {
+      "16000": 2265
+    },
+    "sr_actual_count": {
+      "16000": 2265
+    },
+    "duration_s": {
+      "min": 1.4,
+      "max": 101.064,
+      "mean": 3.3748908940397353,
+      "p50": 3.279875,
+      "p95": 4.440875,
+      "p99": 5.1465600000000125
+    },
+    "transcription_len_count": {
+      "4": 23,
+      "5": 199,
+      "6": 2043
+    },
+    "transcription_min": 1363,
+    "transcription_max": 999669
+  }
+}
