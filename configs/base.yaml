@@ -1,0 +1,47 @@
+# Base config for ConformerCTC-3.97M on ASR-2026 numbers (H100).
+data:
+  data_root: data
+  train_csv: train/train.csv
+  dev_csv: dev/dev.csv
+  n_mels: 80
+  n_fft: 400
+  hop_length: 160
+  win_length: 400
+  min_label: 1000
+  max_label: 999999
+  noise_dir: null              # set to a path to enable noise augmentation
+  noise_prob: 0.5
+  noise_snr_db: [5.0, 25.0]
+  freq_mask: 20
+  freq_mask_n: 2
+  time_mask: 30
+  time_mask_n: 2
+  speed_perturb: [0.9, 1.0, 1.0, 1.0, 1.1]
+  gain_db_range: [-6.0, 6.0]
+
+model:
+  n_mels: 80
+  d_model: 144
+  n_heads: 4
+  n_blocks: 8
+  ff_mult: 4
+  conv_kernel: 15
+  dropout: 0.1
+  vocab_size: 34
+  subsample: 4
+
+epochs: 60
+batch_size: 32
+num_workers: 4
+lr: 3.0e-3
+weight_decay: 1.0e-2
+warmup_steps: 1000
+grad_clip: 5.0
+seed: 42
+out_dir: runs/base
+log_every: 50
+val_every_epoch: 1
+use_balanced_sampler: true
+amp: true
+save_every_epoch: false
+patience: 15
