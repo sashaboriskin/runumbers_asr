@@ -67,6 +67,8 @@ def load_config(path: str) -> TrainConfig:
         dc["data_root"] = Path(dc["data_root"])
     if "noise_dir" in dc and dc["noise_dir"]:
         dc["noise_dir"] = Path(dc["noise_dir"])
+    if "cache_dir" in dc and dc["cache_dir"]:
+        dc["cache_dir"] = Path(dc["cache_dir"])
     cfg = TrainConfig(
         data=DataConfig(**dc),
         model=ModelConfig(**mc),
@@ -167,6 +169,8 @@ def train(cfg: TrainConfig) -> None:
     train_loader = DataLoader(
         train_ds, batch_size=cfg.batch_size, shuffle=shuffle, sampler=sampler,
         num_workers=cfg.num_workers, collate_fn=collate, pin_memory=True, drop_last=True,
+        persistent_workers=cfg.num_workers > 0,
+        prefetch_factor=4 if cfg.num_workers > 0 else None,
     )
     # Sort dev by audio duration ascending so each mini-batch has similar lengths
     # (the 101s outlier in spk_I ends up alone in its batch, avoiding huge pad).
@@ -184,6 +188,8 @@ def train(cfg: TrainConfig) -> None:
         batch_size=max(1, cfg.batch_size // 2),
         sampler=_IdxSampler(dev_order),
         num_workers=cfg.num_workers, collate_fn=collate, pin_memory=True,
+        persistent_workers=cfg.num_workers > 0,
+        prefetch_factor=4 if cfg.num_workers > 0 else None,
     )
 
     mel_ext = MelExtractor(cfg.data).to(device)

@@ -60,6 +60,9 @@ class DataConfig:
     win_length: int = 400
     min_label: int = 1000        # filter train rows below this
     max_label: int = 999_999
+    # If set, we read pre-resampled 16 kHz mono audio from <cache_dir>/<split>/<basename>.npy
+    # instead of the raw dataset. Produced by scripts/cache_audio.py.
+    cache_dir: Path | None = None
     # training aug
     speed_perturb: tuple[float, ...] = (0.9, 1.0, 1.0, 1.0, 1.1)
     gain_db_range: tuple[float, float] = (-6.0, 6.0)
@@ -185,10 +188,20 @@ class NumbersASRDataset(Dataset):
     def __len__(self) -> int:
         return len(self.df)
 
+    def _read_wav(self, filename: str) -> torch.Tensor:
+        """Read audio. If cache_dir is set, read the pre-resampled 16 kHz npy file.
+        Otherwise read the raw source and resample on the fly (slow)."""
+        if self.cfg.cache_dir is not None:
+            base = Path(filename).with_suffix(".npy").name
+            p = self.cfg.cache_dir / self.split / base
+            # np.load with mmap_mode is fast and avoids CPU-side copy until used
+            arr = np.load(p, mmap_mode="r")
+            return torch.from_numpy(np.ascontiguousarray(arr))
+        return _load_audio(self.cfg.data_root / self.split / filename, self.cfg.target_sr)
+
     def __getitem__(self, idx: int) -> dict:
         row = self.df.iloc[idx]
-        path = self.cfg.data_root / self.split / row["filename"]
-        wav = _load_audio(path, self.cfg.target_sr)
+        wav = self._read_wav(row["filename"])
         if self.augment:
             wav = self._augment(wav)
         return {
@@ -203,11 +216,12 @@ class NumbersASRDataset(Dataset):
 
     def _augment(self, wav: torch.Tensor) -> torch.Tensor:
         cfg = self.cfg
-        # speed perturb
-        factor = self._rng.choice(cfg.speed_perturb)
-        if factor != 1.0:
-            new_sr = int(cfg.target_sr * factor)
-            wav = AF.resample(wav.unsqueeze(0), cfg.target_sr, new_sr).squeeze(0)
+        # speed perturb: skip if only {1.0} in the list to avoid expensive CPU resample
+        if cfg.speed_perturb and set(cfg.speed_perturb) != {1.0}:
+            factor = self._rng.choice(cfg.speed_perturb)
+            if factor != 1.0:
+                new_sr = int(cfg.target_sr * factor)
+                wav = AF.resample(wav.unsqueeze(0), cfg.target_sr, new_sr).squeeze(0)
         # gain jitter
         g = self._rng.uniform(*cfg.gain_db_range)
         wav = wav * (10 ** (g / 20))

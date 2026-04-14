@@ -1,6 +1,7 @@
 # Base config for ConformerCTC-3.97M on ASR-2026 numbers (H100).
 data:
   data_root: data
+  cache_dir: data/cache_16k      # requires: uv run python scripts/cache_audio.py
   train_csv: train/train.csv
   dev_csv: dev/dev.csv
   n_mels: 80
@@ -9,14 +10,16 @@ data:
   win_length: 400
   min_label: 1000
   max_label: 999999
-  noise_dir: null              # set to a path to enable noise augmentation
+  noise_dir: null                # set to a path (e.g. data/noise/flat) to enable noise aug
   noise_prob: 0.5
   noise_snr_db: [5.0, 25.0]
   freq_mask: 20
   freq_mask_n: 2
   time_mask: 30
   time_mask_n: 2
-  speed_perturb: [0.9, 1.0, 1.0, 1.0, 1.1]
+  # First run: disable CPU-side speed perturb for max I/O throughput.
+  # Turn back on (e.g. [0.9, 1.0, 1.0, 1.0, 1.1]) after the first baseline.
+  speed_perturb: [1.0]
   gain_db_range: [-6.0, 6.0]
 
 model:
@@ -30,16 +33,16 @@ model:
   vocab_size: 34
   subsample: 4
 
-epochs: 60
-batch_size: 32
-num_workers: 4
-lr: 3.0e-3
+epochs: 80
+batch_size: 256
+num_workers: 12
+lr: 7.0e-3
 weight_decay: 1.0e-2
-warmup_steps: 1000
+warmup_steps: 500
 grad_clip: 5.0
 seed: 42
 out_dir: runs/base
-log_every: 50
+log_every: 20
 val_every_epoch: 1
 use_balanced_sampler: true
 amp: true
