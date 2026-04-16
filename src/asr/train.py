@@ -221,10 +221,11 @@ def train(cfg: TrainConfig) -> None:
             target = batch["target"].to(device, non_blocking=True)
             target_lens = batch["target_lens"].to(device)
 
-            with torch.amp.autocast("cuda", enabled=cfg.amp, dtype=torch.float16):
+            with torch.no_grad():
                 mel = mel_ext(wav)
                 mel_lens = (wav_lens // mel_ext.mel.hop_length + 1).clamp_max(mel.size(-1))
-                mel = spec_aug(mel)
+            mel = spec_aug(mel)
+            with torch.amp.autocast("cuda", enabled=cfg.amp, dtype=torch.float16):
                 logits, out_lens = model(mel, mel_lens)
                 log_probs = F.log_softmax(logits.float(), dim=-1).transpose(0, 1)  # [T, B, V]
                 loss = ctc(log_probs, target, out_lens, target_lens)

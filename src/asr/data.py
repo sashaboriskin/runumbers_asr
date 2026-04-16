@@ -93,7 +93,7 @@ class MelExtractor(torch.nn.Module):
     def forward(self, wav: torch.Tensor) -> torch.Tensor:
         # wav: [B, T] or [T]
         m = self.mel(wav)
-        m = torch.log(m.clamp_min(1e-10))
+        m = torch.log(m.clamp_min(1e-5))
         return m  # [..., n_mels, T']
 
 
